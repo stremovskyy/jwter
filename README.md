@@ -149,6 +149,39 @@ type TokenValidationConfig struct {
 }
 ```
 
+### Validator Options
+
+The library provides a flexible way to configure token validation through options:
+
+```go
+// ValidatorOption is a function type that modifies a TokenValidator
+type ValidatorOption func(*TokenValidator)
+
+// WithSecret allows setting a custom secret for token validation
+func WithSecret(secret string) ValidatorOption
+```
+
+Example usage with options:
+
+```go
+validator := jwter.NewTokenValidator(config, validationConfig)
+
+// Validate token with custom secret
+claims, err := validator.ValidateToken(tokenString, "user", jwter.WithSecret("custom-secret"))
+```
+
+### Token Parsing
+
+You can parse a JWT token without validation using the `ParseToken` method:
+
+```go
+claims, err := validator.ParseToken(tokenString)
+if err != nil {
+    // Handle error
+}
+// Use claims
+```
+
 ## Contributing
 
 We welcome contributions to the JWTER project. To contribute, please follow these steps:

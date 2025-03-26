@@ -31,7 +31,13 @@ func NewTokenValidator(config TokenConfig, validationConfig TokenValidationConfi
 }
 
 // ValidateToken validates a JWT token
-func (v *TokenValidator) ValidateToken(tokenString string, expectedUserType string) (*jwt.MapClaims, error) {
+func (v *TokenValidator) ValidateToken(tokenString string, expectedUserType string, options ...ValidatorOption) (*jwt.MapClaims, error) {
+	if options != nil {
+		for _, option := range options {
+			option(v)
+		}
+	}
+
 	// Parse the token
 	token, err := jwt.Parse(
 		tokenString,
@@ -200,4 +206,20 @@ func getStringSliceFromClaims(claims jwt.MapClaims, key string) []string {
 		return result
 	}
 	return nil
+}
+
+func (v *TokenValidator) ParseToken(tokenString string) (*jwt.MapClaims, error) {
+	parser := jwt.NewParser()
+
+	token, _, err := parser.ParseUnverified(tokenString, jwt.MapClaims{})
+	if err != nil {
+		return nil, fmt.Errorf("token parsing error: %w", err)
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, errors.New("invalid token claims")
+	}
+
+	return &claims, nil
 }
